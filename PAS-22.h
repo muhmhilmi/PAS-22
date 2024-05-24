@@ -555,6 +555,7 @@ void searchItem(Item *head, char *keyword, int mode) {
     }
 
     char name[MAX_STRING_LENGTH];
+    char type[MAX_STRING_LENGTH];
     char keylow[MAX_STRING_LENGTH];
 
     printf("\nHasil pencarian untuk \"%s\":\n", keyword);
@@ -569,14 +570,23 @@ void searchItem(Item *head, char *keyword, int mode) {
 		for (c = 0; name[c]; c++) {
             name[c] = tolower(name[c]);
         }
+        
+        strcpy(type, current->type);
+		for (c = 0; type[c]; c++) {
+            type[c] = tolower(type[c]);
+        }
 
         strcpy(keylow, keyword);
         for (c = 0; keylow[c]; c++) {
             keylow[c] = tolower(keylow[c]);
         }
 
-        if ((mode == 1 && strcmp(name, keylow) == 0) || (mode == 2 && strstr(name, keylow) != NULL)) {
+        if ((mode == 1 && strstr(name, keylow) != NULL)) {
             printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
+                   current->year, current->price, current->quantity);
+            found = 1;
+        } else if (mode == 2 && strstr(type, keylow) != NULL) {
+        	printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
                    current->year, current->price, current->quantity);
             found = 1;
         }
