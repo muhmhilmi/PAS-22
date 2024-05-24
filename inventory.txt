@@ -1,0 +1,11 @@
+Aljabar Linear;Buku;2001;459000.00;40
+Correction Tape;ATK;2024;7500.00;230
+Fisika Listrik;Buku;2004;309000.00;85
+Fisika Mekanik;Buku;2007;619000.00;45
+Kalkulus;Buku;1999;359000.00;70
+Lem kertas;ATK;2024;9000.00;116
+Pemrograman Dasar;Buku;2023;899000.00;18
+Pemrograman Lanjut;buku;2004;499000.00;25
+Penggaris;ATK;2024;10000.00;45
+Pensil 2B;ATK;2024;5000.00;400
+Pulpen Sarasa;ATK;2024;15000.00;300
