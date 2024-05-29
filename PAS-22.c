@@ -16,6 +16,7 @@ Adhikananda Wira Januar     / 2306267113
 Muhammad Hilmi Al Muttaqi   / 2306367082
 
 Edisi Pertama
+Link github : https://github.com/adhikwj/PAS-22
 =======================================================================================================================*/
 
 
@@ -37,15 +38,19 @@ Edisi Pertama
 
 int main() {
     Item *inventory = NULL;
+    feedbackBox feedback[100];
+    int feedbackCount = 0;
+    
     loadInventoryFromFile(&inventory);
+    loadFeedbackFromFile(feedback, &feedbackCount);
 
     int choice, sortOption;
     char keyword[MAX_STRING_LENGTH];
     char user[MAX_STRING_LENGTH];
     char password[MAX_STRING_LENGTH];
-    char feedback[MAX_STRING_LENGTH];
 
     do {
+    	
     	system("CLS");
     	printf(CYAN "----------------------------------" RESET);
         printf(CYAN "\n=== Database Toko Buku dan ATK ===\n" RESET);
@@ -131,7 +136,15 @@ int main() {
                             system("CLS");
                             break;
                         case 7:
-                            printf("%s\n", feedback);
+                        	if(feedbackCount == 0){
+                        		printf("Kotak saran masih kosong.\n");
+							} else {
+								int i;
+								for(i = 0;i < feedbackCount; i++){
+									printf("\nPesan dari %s : ", feedback[i].sender);
+									printf("%s \n", feedback[i].message);
+								}
+							}
                             system("pause");
                             system("CLS");
                             break;
@@ -146,6 +159,7 @@ int main() {
                 break;
             case 2:
                 do {
+                	saveFeedbackToFile(feedback, feedbackCount);
                 	system("CLS");
                 	printf(YELLOW "-----------------------------------" RESET);
                     printf(YELLOW "\n===\t  Mode Customer  \t===\n" RESET);
@@ -184,7 +198,10 @@ int main() {
                             break;
                         case 4:
                         	printf("Masukkan saran bagi karyawan: ");
-                        	scanf(" %[^\n]s", feedback);
+                        	scanf(" %[^\n]s", feedback[feedbackCount].message);
+                        	printf("Masukkan nama anda (atau tulis - jika ingin anonymous): ");
+                        	scanf(" %[^\n]s", feedback[feedbackCount].sender);
+                        	feedbackCount++;
                         	printf("Terimakasih telah memberi feedback bagi kami!\n");
                         	system("pause");
                             system("CLS");
@@ -200,6 +217,7 @@ int main() {
                 break;
             case 3:
                 saveInventoryToFile(inventory);
+                saveFeedbackToFile(feedback, feedbackCount);
                 system("CLS");
                 printf("Terima kasih, program selesai.\n");
                 break;

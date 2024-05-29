@@ -42,6 +42,12 @@ typedef struct Item {
     struct Item *next;
 } Item;
 
+typedef struct feedbackBox{
+	char message[MAX_STRING_LENGTH];
+	char sender[MAX_STRING_LENGTH];
+    int number;
+} feedbackBox;
+
 void saveInventoryToFile(Item *head) {
     FILE *file = fopen("inventory.txt", "w");
     if (file == NULL) {
@@ -70,7 +76,7 @@ void loadInventoryFromFile(Item **head) {
     while (1) {
         Item *newItem = malloc(sizeof(Item));
         if (fscanf(file, "%[^;];%[^;];%d;%f;%d\n", newItem->name, newItem->type,
-                   &newItem->year, &newItem->price, &newItem->quantity) != 5) {
+                    &newItem->year, &newItem->price, &newItem->quantity) != 5) {
             free(newItem);
             break;
         }
@@ -218,7 +224,7 @@ void displayInventory(Item *head, int sortOption) {
 	    #pragma omp parallel for
 	    for (i = 0; i < itemCount; i++) {
 	        printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", itemArray[i]->name, itemArray[i]->type,
-	               itemArray[i]->year, itemArray[i]->price, itemArray[i]->quantity);
+	                itemArray[i]->year, itemArray[i]->price, itemArray[i]->quantity);
 	    }
 
     free(itemArray);
@@ -314,7 +320,7 @@ void addStock(Item *head) {
 
                 if (strstr(name, keylow) != NULL) {
                     printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
-                           current->year, current->price, current->quantity);
+                            current->year, current->price, current->quantity);
                 }
                 current = current->next;
             }
@@ -390,7 +396,7 @@ void reduceStock(Item *head) {
 
                 if (strstr(name, keylow) != NULL) {
                     printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
-                           current->year, current->price, current->quantity);
+                            current->year, current->price, current->quantity);
                 }
                 current = current->next;
             }
@@ -467,7 +473,7 @@ void removeItem(Item **head) {
 
                 if (strstr(name, keylow) != NULL) {
                     printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
-                           current->year, current->price, current->quantity);
+                            current->year, current->price, current->quantity);
                 }
                 current = current->next;
             }
@@ -538,7 +544,7 @@ void updatePrice(Item *head) {
 
                 if (strstr(name, keylow) != NULL) {
                     printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
-                           current->year, current->price, current->quantity);
+                            current->year, current->price, current->quantity);
                 }
                 current = current->next;
             }
@@ -555,7 +561,6 @@ void searchItem(Item *head, char *keyword, int mode) {
     }
 
     char name[MAX_STRING_LENGTH];
-    char type[MAX_STRING_LENGTH];
     char keylow[MAX_STRING_LENGTH];
 
     printf("\nHasil pencarian untuk \"%s\":\n", keyword);
@@ -570,24 +575,15 @@ void searchItem(Item *head, char *keyword, int mode) {
 		for (c = 0; name[c]; c++) {
             name[c] = tolower(name[c]);
         }
-        
-        strcpy(type, current->type);
-		for (c = 0; type[c]; c++) {
-            type[c] = tolower(type[c]);
-        }
 
         strcpy(keylow, keyword);
         for (c = 0; keylow[c]; c++) {
             keylow[c] = tolower(keylow[c]);
         }
 
-        if ((mode == 1 && strstr(name, keylow) != NULL)) {
+        if ((mode == 1 && strcmp(name, keylow) == 0) || (mode == 2 && strstr(name, keylow) != NULL)) {
             printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
-                   current->year, current->price, current->quantity);
-            found = 1;
-        } else if (mode == 2 && strstr(type, keylow) != NULL) {
-        	printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
-                   current->year, current->price, current->quantity);
+                    current->year, current->price, current->quantity);
             found = 1;
         }
         current = current->next;
@@ -605,4 +601,37 @@ void freeInventory(Item *head) {
         free(current);
         current = next;
     }
+}
+
+void saveFeedbackToFile(feedbackBox *feedback, int count) {
+    FILE *file = fopen("feedback.txt", "w");
+    if (file == NULL) {
+        printf(YELLOW "Gagal membuka file.\n" RESET);
+        return;
+    }
+	int i;
+    for (i = 0; i < count; i++) {
+        if(i == 0){
+            feedback[i].number = 1;
+        } else{
+            feedback[i].number = feedback[i-1].number + 1; 
+        }
+        fprintf(file, "%s;%s;%d\n", feedback[i].sender, feedback[i].message, feedback[i].number);
+    }
+
+    fclose(file);
+}
+
+void loadFeedbackFromFile(feedbackBox *feedback, int *count) {
+    FILE *file = fopen("feedback.txt", "r");
+    if (file == NULL) {
+        printf(YELLOW "File feedback tidak ditemukan.\n" RESET);
+        return;
+    }
+
+    while ((*count < 100) && fscanf(file, "%[^;];%[^;];%d\n", feedback[*count].sender, feedback[*count].message, &feedback[*count].number) == 3) {
+        (*count)++;
+    }
+
+    fclose(file);
 }
