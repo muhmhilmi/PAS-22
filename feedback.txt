@@ -1,3 +1,4 @@
-dodi;keren cuy;1
-andhika ai;programnya bapuk;2
-om jeremy;tambahin buku aljabar dong;3
+Donny;Tolong tambahkan pulpen dan pensil merk baru!;1
+Andhika;Programnya masih dapat ditambahkan fitur baru.;2
+Jeremy;Tolong tambahkan buku novel yang terbaru!;3
+Bang Rusdi;Programnya sangat keren!;4

@@ -98,6 +98,7 @@ int main() {
                     printf("7. Lihat kotak saran\n");
                     printf("8. Kembali ke menu utama\n");
                     printf(GREEN "---------------------------------------\n" RESET);
+                    warningStock(inventory);
                     printf("Pilihan Anda: ");
                     scanf("%d", &choice);
 
@@ -136,15 +137,7 @@ int main() {
                             system("CLS");
                             break;
                         case 7:
-                        	if(feedbackCount == 0){
-                        		printf("Kotak saran masih kosong.\n");
-							} else {
-								int i;
-								for(i = 0;i < feedbackCount; i++){
-									printf("\nPesan dari %s : ", feedback[i].sender);
-									printf("%s \n", feedback[i].message);
-								}
-							}
+                        	displayFeedback(feedback, feedbackCount);
                             system("pause");
                             system("CLS");
                             break;
@@ -197,12 +190,7 @@ int main() {
                             system("CLS");
                             break;
                         case 4:
-                        	printf("Masukkan saran bagi karyawan: ");
-                        	scanf(" %[^\n]s", feedback[feedbackCount].message);
-                        	printf("Masukkan nama anda (atau tulis - jika ingin anonymous): ");
-                        	scanf(" %[^\n]s", feedback[feedbackCount].sender);
-                        	feedbackCount++;
-                        	printf("Terimakasih telah memberi feedback bagi kami!\n");
+                            getFeedback(feedback, &feedbackCount);
                         	system("pause");
                             system("CLS");
 							break;

@@ -635,3 +635,43 @@ void loadFeedbackFromFile(feedbackBox *feedback, int *count) {
 
     fclose(file);
 }
+
+void getFeedback(feedbackBox *feedback, int *count){
+    printf("Masukkan saran bagi karyawan: ");
+    scanf(" %[^\n]s", feedback[*count].message);
+    printf("Masukkan nama anda (atau tulis - jika ingin anonymous): ");
+    scanf(" %[^\n]s", feedback[*count].sender);
+    (*count)++;
+    printf("Terimakasih telah memberi feedback bagi kami!\n");
+}
+
+void displayFeedback(feedbackBox *feedback, int count){
+    if(count == 0){
+        printf("Kotak saran masih kosong.\n");
+	} else {
+		int i;
+    	for(i = 0;i < count; i++){
+		printf("\nPesan dari %s : ", feedback[i].sender);
+		printf("%s \n", feedback[i].message);
+		}
+	}
+}
+
+void warningStock(Item *head){
+    int i = 0;
+    Item *current = head;
+    while (current != NULL) {
+        if(current->quantity < 20){
+            if(i != 1){
+            printf(RED "!!! WARNING !!!\n" RESET);
+            printf(YELLOW "Stok barang berikut perlu diperbarui! : \n\n" RESET);
+            printf("%-20s\t\t|%-10s\t|\n", "Nama Barang", "Jumlah");
+            printf("--------------------------------|---------------|\n");
+            i++;
+            }
+            printf("%-20s\t\t|%-10d\t|\n", current->name, current->quantity);
+        }
+        current = current->next;
+    }
+    printf("\n");
+}
