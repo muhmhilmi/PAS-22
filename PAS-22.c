@@ -52,13 +52,13 @@ int main() {
     do {
     	
     	system("CLS");
-    	printf(CYAN "----------------------------------" RESET);
-        printf(CYAN "\n=== Database Toko Buku dan ATK ===\n" RESET);
-        printf(CYAN "----------------------------------\n" RESET);
+    	printf(CYAN "------------------------------------" RESET);
+        printf(CYAN "\n=== Bookstore Inventory Database ===\n" RESET);
+        printf(CYAN "------------------------------------\n" RESET);
         printf("1. " GREEN "Mode Karyawan\n" RESET);
         printf("2. " YELLOW "Mode Customer\n" RESET);
         printf("3. " RED "Keluar\n" RESET);
-        printf(CYAN "----------------------------------\n" RESET);
+        printf(CYAN "------------------------------------\n" RESET);
         printf("Pilihan Anda: ");
         scanf("%d", &choice);
 
@@ -129,7 +129,7 @@ int main() {
                             system("CLS");
                             break;
                         case 6:
-                            printf("\nUrutkan berdasarkan (1. Alfabet, 2. Jenis): ");
+                            printf("\nUrutkan berdasarkan (1. Nama barang, 2. Jenis barang): ");
                             int sortOption;
                             scanf("%d", &sortOption);
                             displayInventory(inventory, sortOption);

@@ -141,53 +141,45 @@ void sortInventoryByName(Item **head) {
 void sortInventoryByType(Item **head) {
     if (*head == NULL) return;
 
-    int itemCount = 0;
-    Item *current = *head;
+    int swapped;
+    Item *ptr1;
+    Item *lptr = NULL;
 
-    // Count the number of items in the linked list
-    while (current != NULL) {
-        itemCount++;
-        current = current->next;
-    }
+    do {
+        swapped = 0;
+        ptr1 = *head;
 
-    // Create an array of pointers to items
-    Item **itemArray = (Item **)malloc(itemCount * sizeof(Item *));
-    if (itemArray == NULL) {
-        printf("Memory allocation failed.\n");
-        return;
-    }
+        while (ptr1->next != lptr) {
+            if (strcmp(ptr1->type, ptr1->next->type) > 0) {
+                // Swap data
+                char tempName[MAX_STRING_LENGTH], tempType[MAX_STRING_LENGTH];
+                int tempYear, tempQuantity;
+                float tempPrice;
 
-    // Fill the array with pointers to items from the linked list
-    current = *head;
-    int i, j; // Declare j outside the loop
-    for (i = 0; i < itemCount; i++) {
-        itemArray[i] = current;
-        current = current->next;
-    }
+                strcpy(tempName, ptr1->name);
+                strcpy(tempType, ptr1->type);
+                tempYear = ptr1->year;
+                tempPrice = ptr1->price;
+                tempQuantity = ptr1->quantity;
 
-    // Sort the array of items based on type (using bubble sort for simplicity)
-    #pragma omp parallel for private(j) // Declare j private to each thread
-    for (i = 0; i < itemCount - 1; i++) {
-        for (j = 0; j < itemCount - i - 1; j++) {
-            if (strcmp(itemArray[j]->type, itemArray[j + 1]->type) > 0) {
-                Item *temp = itemArray[j];
-                itemArray[j] = itemArray[j + 1];
-                itemArray[j + 1] = temp;
+                strcpy(ptr1->name, ptr1->next->name);
+                strcpy(ptr1->type, ptr1->next->type);
+                ptr1->year = ptr1->next->year;
+                ptr1->price = ptr1->next->price;
+                ptr1->quantity = ptr1->next->quantity;
+
+                strcpy(ptr1->next->name, tempName);
+                strcpy(ptr1->next->type, tempType);
+                ptr1->next->year = tempYear;
+                ptr1->next->price = tempPrice;
+                ptr1->next->quantity = tempQuantity;
+
+                swapped = 1;
             }
+            ptr1 = ptr1->next;
         }
-    }
-
-    // Reconstruct the linked list with the sorted items
-    *head = itemArray[0];
-    current = *head;
-    for (i = 1; i < itemCount; i++) {
-        current->next = itemArray[i];
-        current = current->next;
-    }
-    current->next = NULL;
-
-    // Free the temporary array
-    free(itemArray);
+        lptr = ptr1;
+    } while (swapped);
 }
 
 void displayInventory(Item *head, int sortOption) {
@@ -195,39 +187,23 @@ void displayInventory(Item *head, int sortOption) {
         printf(YELLOW "Inventaris kosong.\n" RESET);
         return;
     }
-    
+
     if (sortOption == 1) {
         sortInventoryByName(&head);
     } else if (sortOption == 2) {
         sortInventoryByType(&head);
     }
 
-    int itemCount = 0;
-    Item *current = head;
-    while (current != NULL) {
-        itemCount++;
-        current = current->next;
-    }
-
-    Item **itemArray = (Item **)malloc(itemCount * sizeof(Item *));
-    current = head;
-    int i;
-	for (i = 0; i < itemCount; i++) {
-        itemArray[i] = current;
-        current = current->next;
-    }
     printf(CYAN "\n=== Inventaris ===\n" RESET);
     printf("%-20s\t\t|%-10s\t|%-10s\t|%-10s\t\t|%-10s\t|\n", "Nama Barang", "Jenis", "Tahun", "Harga", "Jumlah");
     printf("--------------------------------|---------------|---------------|-----------------------|---------------|\n");
 
-	
-	    #pragma omp parallel for
-	    for (i = 0; i < itemCount; i++) {
-	        printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", itemArray[i]->name, itemArray[i]->type,
-	                itemArray[i]->year, itemArray[i]->price, itemArray[i]->quantity);
-	    }
-
-    free(itemArray);
+    Item *current = head;
+    while (current != NULL) {
+        printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
+                current->year, current->price, current->quantity);
+        current = current->next;
+    }
 }
 
 
@@ -561,6 +537,7 @@ void searchItem(Item *head, char *keyword, int mode) {
     }
 
     char name[MAX_STRING_LENGTH];
+    char type[MAX_STRING_LENGTH];
     char keylow[MAX_STRING_LENGTH];
 
     printf("\nHasil pencarian untuk \"%s\":\n", keyword);
@@ -575,14 +552,23 @@ void searchItem(Item *head, char *keyword, int mode) {
 		for (c = 0; name[c]; c++) {
             name[c] = tolower(name[c]);
         }
+        
+        strcpy(type, current->type);
+		for (c = 0; type[c]; c++) {
+            type[c] = tolower(type[c]);
+        }
 
         strcpy(keylow, keyword);
         for (c = 0; keylow[c]; c++) {
             keylow[c] = tolower(keylow[c]);
         }
 
-        if ((mode == 1 && strcmp(name, keylow) == 0) || (mode == 2 && strstr(name, keylow) != NULL)) {
+        if ((mode == 1 && strstr(name, keylow) != NULL)) {
             printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
+                    current->year, current->price, current->quantity);
+            found = 1;
+        } else if (mode == 2 && strstr(type, keylow) != NULL) {
+        	printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", current->name, current->type,
                     current->year, current->price, current->quantity);
             found = 1;
         }
@@ -663,7 +649,7 @@ void warningStock(Item *head){
     while (current != NULL) {
         if(current->quantity < 20){
             if(i != 1){
-            printf(RED "!!! WARNING !!!\n" RESET);
+            printf(RED "\n\t   !!! WARNING !!!\n" RESET);
             printf(YELLOW "Stok barang berikut perlu diperbarui! : \n\n" RESET);
             printf("%-20s\t\t|%-10s\t|\n", "Nama Barang", "Jumlah");
             printf("--------------------------------|---------------|\n");
