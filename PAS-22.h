@@ -32,7 +32,6 @@ Edisi Pertama
 #define CYAN    "\x1b[36m"
 #define RESET   "\x1b[0m"
 
-
 typedef struct Item {
     char name[MAX_STRING_LENGTH];
     char type[MAX_STRING_LENGTH];
@@ -47,6 +46,17 @@ typedef struct feedbackBox{
 	char sender[MAX_STRING_LENGTH];
     int number;
 } feedbackBox;
+
+typedef struct Cart {
+    Item *item;
+    int quantity;
+    struct Cart *next;
+} Cart;
+
+typedef struct CartItem {
+    Item *item;
+    int quantity;
+} CartItem;
 
 void saveInventoryToFile(Item *head) {
     FILE *file = fopen("inventory.txt", "w");
@@ -580,6 +590,115 @@ void searchItem(Item *head, char *keyword, int mode) {
     }
 }
 
+void searchItemCustomer(Item *head, char *keyword, int mode) {
+    if (head == NULL) {
+        printf(YELLOW "Inventaris kosong.\n" RESET);
+        return;
+    }
+    char name[MAX_STRING_LENGTH];
+    char type[MAX_STRING_LENGTH];
+    char keylow[MAX_STRING_LENGTH];
+    printf("\nHasil pencarian untuk \"%s\":\n", keyword);
+    printf("%-20s\t\t|%-10s\t|%-10s\t|%-10s\t\t|%-10s\t|\n", "Nama Barang", "Jenis", "Tahun", "Harga", "Jumlah");
+    printf("--------------------------------|---------------|---------------|-----------------------|---------------|\n");
+    int found = 0;
+    Item *current = head;
+    int index = 1;
+    Item *results[100]; // Array untuk menyimpan hasil pencarian
+    while (current != NULL) {
+        strcpy(name, current->name);
+        int c;
+        for (c = 0; name[c]; c++) {
+            name[c] = tolower(name[c]);
+        }     
+        strcpy(type, current->type);
+        for (c = 0; type[c]; c++) {
+            type[c] = tolower(type[c]);
+        }
+        strcpy(keylow, keyword);
+        for (c = 0; keylow[c]; c++) {
+            keylow[c] = tolower(keylow[c]);
+        }
+        if ((mode == 1 && strstr(name, keylow) != NULL)) {
+            printf("%d. %-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", index, current->name, current->type,
+                    current->year, current->price, current->quantity);
+            results[index - 1] = current;
+            found = 1;
+            index++;
+        } else if (mode == 2 && strstr(type, keylow) != NULL) {
+            printf("%d. %-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", index, current->name, current->type,
+                    current->year, current->price, current->quantity);
+            results[index - 1] = current;
+            found = 1;
+            index++;
+        }
+        current = current->next;
+    }
+    if (!found) {
+        printf(RED "Barang tidak ditemukan.\n" RESET);
+    } else {
+        int choice, quantity;
+        printf("Pilih nomor barang yang ingin Anda pilih: ");
+        scanf("%d", &choice);
+        if (choice > 0 && choice < index) {
+            printf("Masukkan jumlah barang yang ingin Anda kurangkan: ");
+            scanf("%d", &quantity);
+            if (quantity <= results[choice - 1]->quantity) {
+                results[choice - 1]->quantity -= quantity;
+                printf(YELLOW "Jumlah barang berhasil dikurangi.\n" RESET);
+            } else {
+                printf(RED "Jumlah barang tidak mencukupi.\n" RESET);
+            }
+        } else {
+            printf(RED "Pilihan tidak valid.\n" RESET);
+        }
+    }
+}
+
+int compareByName(const void *a, const void *b) {
+    CartItem *itemA = (CartItem *)a;
+    CartItem *itemB = (CartItem *)b;
+    return strcmp(itemA->item->name, itemB->item->name);
+}
+
+int compareByType(const void *a, const void *b) {
+    CartItem *itemA = (CartItem *)a;
+    CartItem *itemB = (CartItem *)b;
+    return strcmp(itemA->item->type, itemB->item->type);
+}
+
+void displayCartInventory(Cart *head, int sortOption) {
+    if (head == NULL) {
+        printf(YELLOW "Keranjang kosong.\n" RESET);
+        return;
+    }
+    
+    Cart *current = head;
+    CartItem cartItems[100];
+    int i, count = 0;
+    
+    while (current != NULL) {
+        cartItems[count].item = current->item;
+        cartItems[count].quantity = current->quantity;
+        count++;
+        current = current->next;
+    }
+
+    if (sortOption == 1) {
+        qsort(cartItems, count, sizeof(CartItem), compareByName);
+    } else if (sortOption == 2) {
+        qsort(cartItems, count, sizeof(CartItem), compareByType);
+    }
+
+    printf("\nDaftar Barang di Keranjang:\n");
+    printf("%-20s\t\t|%-10s\t|%-10s\t|%-10s\t\t|%-10s\t|\n", "Nama Barang", "Jenis", "Tahun", "Harga", "Jumlah");
+    printf("--------------------------------|---------------|---------------|-----------------------|---------------|\n");
+    for (i = 0; i < count; i++) {
+        printf("%-20s\t\t|%-10s\t|%-10d\t|Rp. %-10.2f\t\t|%-10d\t|\n", cartItems[i].item->name, cartItems[i].item->type,
+               cartItems[i].item->year, cartItems[i].item->price, cartItems[i].quantity);
+    }
+}
+
 void freeInventory(Item *head) {
     Item *current = head;
     while (current != NULL) {
@@ -641,6 +760,34 @@ void displayFeedback(feedbackBox *feedback, int count){
 		printf("%s \n", feedback[i].message);
 		}
 	}
+}
+
+void addToCart(Cart **cart, Item *item, int quantity) {
+    Cart *newNode = (Cart *)malloc(sizeof(Cart));
+    newNode->item = item;
+    newNode->quantity = quantity;
+    newNode->next = *cart;
+    *cart = newNode;
+}
+
+void removeFromCart(Cart **cart, Item *item) {
+    Cart *current = *cart;
+    Cart *previous = NULL;
+    while (current != NULL && current->item != item) {
+        previous = current;
+        current = current->next;
+    }
+    if (current == NULL) {
+        printf(RED "Item tidak ditemukan di keranjang.\n" RESET);
+        return;
+    }
+    if (previous == NULL) {
+        *cart = current->next;
+    } else {
+        previous->next = current->next;
+    }
+    free(current);
+    printf(GREEN "Item berhasil dihapus dari keranjang.\n" RESET);
 }
 
 void warningStock(Item *head){
