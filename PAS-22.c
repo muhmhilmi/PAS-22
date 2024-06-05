@@ -19,6 +19,27 @@ Edisi Pertama
 Link github : https://github.com/adhikwj/PAS-22
 =======================================================================================================================*/
 
+/*=======================================================================================================================
+Program Proyek Akhir Semester
+Judul Program : "Digital Bookstore Inventory Navigator"
+Program ini akan menyimpan buku dan barang ATK beserta informasinya (judul, tahun terbit, harga, kode, dan lain-lain)
+ke dalam sebuah file inventaris, lalu file inventaris tersebut dapat digunakan dalam program ini agar user dapat mencari
+buku atau barang ATK dalam database inventaris.
+
+Pemrograman Lanjut Kelas 02
+
+Rabu, 22 Mei 2024
+
+Kelompok 22
+
+Anggota : 
+Adhikananda Wira Januar     / 2306267113
+Muhammad Hilmi Al Muttaqi   / 2306367082
+
+Edisi Pertama
+Link github : https://github.com/adhikwj/PAS-22
+=======================================================================================================================*/
+
 
 #include <omp.h>
 #include <stdio.h>
@@ -38,6 +59,7 @@ Link github : https://github.com/adhikwj/PAS-22
 
 int main() {
     Item *inventory = NULL;
+    Cart *cart = NULL;
     feedbackBox feedback[100];
     int feedbackCount = 0;
     
@@ -52,13 +74,13 @@ int main() {
     do {
     	
     	system("CLS");
-    	printf(CYAN "------------------------------------" RESET);
-        printf(CYAN "\n=== Bookstore Inventory Database ===\n" RESET);
-        printf(CYAN "------------------------------------\n" RESET);
+    	printf(CYAN "----------------------------------" RESET);
+        printf(CYAN "\n=== Database Toko Buku dan ATK ===\n" RESET);
+        printf(CYAN "----------------------------------\n" RESET);
         printf("1. " GREEN "Mode Karyawan\n" RESET);
         printf("2. " YELLOW "Mode Customer\n" RESET);
         printf("3. " RED "Keluar\n" RESET);
-        printf(CYAN "------------------------------------\n" RESET);
+        printf(CYAN "----------------------------------\n" RESET);
         printf("Pilihan Anda: ");
         scanf("%d", &choice);
 
@@ -129,7 +151,7 @@ int main() {
                             system("CLS");
                             break;
                         case 6:
-                            printf("\nUrutkan berdasarkan (1. Nama barang, 2. Jenis barang): ");
+                            printf("\nUrutkan berdasarkan (1. Nama Barang, 2. Jenis): ");
                             int sortOption;
                             scanf("%d", &sortOption);
                             displayInventory(inventory, sortOption);
@@ -157,10 +179,10 @@ int main() {
                 	printf(YELLOW "-----------------------------------" RESET);
                     printf(YELLOW "\n===\t  Mode Customer  \t===\n" RESET);
                     printf(YELLOW "-----------------------------------\n" RESET);
-                    printf("1. Cari barang\n");
-                    printf("2. Cari berdasarkan jenis barang\n");
-                    printf("3. Tampilkan inventory\n");
-                    printf("4. Beri feedback\n");
+                    printf("1. Cari Barang\n");
+                    printf("2. Cari Berdasarkan Jenis Barang\n");
+                    printf("3. Tampilkan Keranjang\n");
+                    printf("4. Beri Feedback\n");
                     printf("5. Kembali ke menu utama\n");
                     printf(YELLOW "-----------------------------------\n" RESET);
                     printf("Pilihan Anda: ");
@@ -170,7 +192,7 @@ int main() {
                         case 1:
                             printf("Masukkan kata kunci: ");
                             scanf(" %[^\n]s", keyword); // Menggunakan format %[^\n]s untuk membaca spasi
-                            searchItem(inventory, keyword,  1);
+                            searchItemCustomer(inventory, keyword,  1);
                             system("pause");
                             system("CLS");
                             break;
@@ -183,12 +205,11 @@ int main() {
                             break;
                         case 3:
                             printf("\nUrutkan berdasarkan (1. Alfabet, 2. Jenis): ");
-                            int sortOption;
-                            scanf("%d", &sortOption);
-                            displayInventory(inventory, sortOption);
-                            system("pause");
-                            system("CLS");
-                            break;
+			                int sortOption;
+			                scanf("%d", &sortOption);
+			                displayCartInventory(cart, sortOption);
+			                system("pause");
+			                break;
                         case 4:
                             getFeedback(feedback, &feedbackCount);
                         	system("pause");
@@ -219,4 +240,3 @@ int main() {
     freeInventory(inventory);
     return 0;
 }
-
